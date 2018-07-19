@@ -50,15 +50,29 @@ class Opinion
 	end
 end
 get '/' do
-	doc = Nokogiri::HTML(open(params['url']))
-	#res = Net::HTTP.get_response(URI(params['url']))
-	
-	title = doc.css('div#col-wi span.q-title').text#RubyQuery::Query.query(res.body, 'div#col-wi span.q-title', 'text')
-	askedBy = doc.css('div#col-wi div.r-contain div.tags>a').text #RubyQuery::Query.query(res.body, 'div#col-wi div.r-contain div.tags>a', 'text')
-	yes = doc.css('span.yes-text').text #RubyQuery::Query.query(res.body, 'span.yes-text', 'text')
-	no = doc.css('span.no-text').text#RubyQuery::Query.query(res.body, 'span.no-text', 'text')
-	op = Opinion.new(title, askedBy, yes, no)
-	op.to_s
+	if params['url'].nil? || params['url'].empty? || params['url'] == ''
+		'empty response'
+	elseif !params['url'].include?('http://www.debate.org/opinions')
+		'Bad Request'
+	else
+		begin 
+			doc = Nokogiri::HTML(open(params['url']))
+			#res = Net::HTTP.get_response(URI(params['url']))
+			doc
+			title = doc.css('div#col-wi span.q-title').text#RubyQuery::Query.query(res.body, 'div#col-wi span.q-title', 'text')
+			askedBy = doc.css('div#col-wi div.r-contain div.tags>a').text #RubyQuery::Query.query(res.body, 'div#col-wi div.r-contain div.tags>a', 'text')
+			yes = doc.css('span.yes-text').text #RubyQuery::Query.query(res.body, 'span.yes-text', 'text')
+			no = doc.css('span.no-text').text#RubyQuery::Query.query(res.body, 'span.no-text', 'text')
+			op = Opinion.new(title, askedBy, yes, no)
+			op.to_s
+		rescue OpenURI::HTTPError => ex
+			if ex.message == '404 Not Found'
+				'URL is not found'
+			else
+				'Bad Request'
+			end
+		end
+	end
 	
 	#RubyQuery::Query.query(res.body, 'div#yes-arguments>ul>li>p', 'text')
 	
