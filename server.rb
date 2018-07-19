@@ -53,11 +53,11 @@ get '/' do
 	doc = Nokogiri::HTML(open(params['url']))
 	#res = Net::HTTP.get_response(URI(params['url']))
 	
-	title = doc.css('div#col-wi span.q-title')#RubyQuery::Query.query(res.body, 'div#col-wi span.q-title', 'text')
-	#askedBy =  RubyQuery::Query.query(res.body, 'div#col-wi div.r-contain div.tags>a', 'text')
-	#yes = RubyQuery::Query.query(res.body, 'span.yes-text', 'text')
-	#no = RubyQuery::Query.query(res.body, 'span.no-text', 'text')
-	op = Opinion.new(title, "", "", "")
+	title = doc.css('div#col-wi span.q-title').text#RubyQuery::Query.query(res.body, 'div#col-wi span.q-title', 'text')
+	askedBy = doc.css('div#col-wi div.r-contain div.tags>a').text #RubyQuery::Query.query(res.body, 'div#col-wi div.r-contain div.tags>a', 'text')
+	yes = doc.css('span.yes-text').text #RubyQuery::Query.query(res.body, 'span.yes-text', 'text')
+	no = doc.css('span.no-text').text#RubyQuery::Query.query(res.body, 'span.no-text', 'text')
+	op = Opinion.new(title, askedBy, yes, no)
 	op.to_s
 	
 	#RubyQuery::Query.query(res.body, 'div#yes-arguments>ul>li>p', 'text')
