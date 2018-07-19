@@ -23,9 +23,15 @@ class HelloWorldTest < Test::Unit::TestCase
 	assert last_response.body.include?('"title": "Can the laws keep up with today’s internet technology?"')
  end
  
- def test_it_with_bad_request
+ def test_it_with_debade_request_should_return_bad_request
 	get '/', :url => 'http://www.debate.org/debates/Is-the-Bible-against-womens-rights/1/'
 	assert last_response.ok?
 	assert last_response.body.include?('Bad Request')
  end
+ 
+ def test_it_with_a_non_existent_url
+	get '/', :url => 'http://www.debate.org/opinions/can-the-laws-keep-up-with-today-s-internet-technology_test'
+    assert last_response.ok?
+	assert last_response.body.include?('URL is not found')
+  end
 end

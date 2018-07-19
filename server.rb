@@ -52,7 +52,7 @@ end
 get '/' do
 	if params['url'].nil? || params['url'].empty? || params['url'] == ''
 		'empty response'
-	elseif !params['url'].include?('http://www.debate.org/opinions')
+	elsif !params['url'].include?('http://www.debate.org/opinions')
 		'Bad Request'
 	else
 		begin 
