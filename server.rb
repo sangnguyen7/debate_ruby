@@ -108,3 +108,8 @@ get '/' do
 	#RubyQuery::Query.query(res.body, 'div#yes-arguments>ul>li>p', 'text')
 	
 end
+
+
+# An example for testing
+# http://localhost:4567/?url=http://www.debate.org/opinions/can-the-laws-keep-up-with-today-s-internet-technology
+#
