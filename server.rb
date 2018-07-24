@@ -15,7 +15,7 @@ class Vote
 	
 	def to_s
 		data = '{
-			"postedBy": "' + @postedBy + '",
+			postedBy": "' + @postedBy + '",
 			"mainPoint": "' + @mainPoint + '",
 			"comment": "' + @comment + '",
 			"like": "' + @like + '"
@@ -28,8 +28,8 @@ class Opinion
 	def initialize(title, askedBy, yes, no, votes)
 		@title = title
 		@askedBy = askedBy
-		@yes = yes
-		@no = no
+		@yes = yes.strip
+		@no = no.strip
 		@votes = votes
 	end
 	
@@ -93,6 +93,8 @@ get '/' do
 			end
 			
 			op = Opinion.new(title, askedBy, yes, no, votes)
+			content_type :json
+			#JSON(op, :encoder => :to_json, :content_type => :js)
 			op.to_s
 		rescue OpenURI::HTTPError => ex
 			if ex.message == '404 Not Found'
