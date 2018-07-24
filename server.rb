@@ -3,6 +3,7 @@ require 'net/http'
 require 'ruby_query'
 require 'nokogiri'
 require 'open-uri'
+require 'json'
 
 class Vote
 	def initialize(mainPoint, comment, postedBy, like)
@@ -12,20 +13,24 @@ class Vote
 		@like = like
 	end
 	
-	def to_json
+	def to_s
 		data = '{
-			"mainPoint": "#{@mainPoint}"
+			"postedBy": "' + @postedBy + '",
+			"mainPoint": "' + @mainPoint + '",
+			"comment": "' + @comment + '",
+			"like": "' + @like + '"
 		}'
 	end
 end
 
 class Opinion
 
-	def initialize(title, askedBy, yes, no)
+	def initialize(title, askedBy, yes, no, votes)
 		@title = title
 		@askedBy = askedBy
 		@yes = yes
 		@no = no
+		@votes = votes
 	end
 	
 	def setTitle(title)
@@ -40,12 +45,17 @@ class Opinion
 		@no = no_p
 	end
 	
+	def setVotes(comments)
+		@votes = comments
+	end
+	
 	def to_s
 		data = '{
 			"title": "' + @title + '",
 			"askedBy": "' + @askedBy + '",
 			"yes": "' + @yes + '",
-			"no": "' + @no + '"
+			"no": "' + @no + '",
+			"oppinions": [' + @votes.join(',') + ']
 		}'
 	end
 end
@@ -63,7 +73,26 @@ get '/' do
 			askedBy = doc.css('div#col-wi div.r-contain div.tags>a').text #RubyQuery::Query.query(res.body, 'div#col-wi div.r-contain div.tags>a', 'text')
 			yes = doc.css('span.yes-text').text #RubyQuery::Query.query(res.body, 'span.yes-text', 'text')
 			no = doc.css('span.no-text').text#RubyQuery::Query.query(res.body, 'span.no-text', 'text')
-			op = Opinion.new(title, askedBy, yes, no)
+			votes = Array.new();
+			doc.css('#yes-arguments>ul>li.hasData').each do |li|
+				mainPoint = li.css('h2').first.text
+				comment = li.css('p').first.text
+				postedBy = li.css('div.qt>cite>a').text
+				like = 'Yes'
+				vote = Vote.new(mainPoint, comment, postedBy, like)
+				votes.push(vote);
+			end
+			
+			doc.css('#no-arguments>ul>li.hasData').each do |li|
+				mainPoint = li.css('h2').first.text
+				comment = li.css('p').first.text
+				postedBy = li.css('div.qt>cite>a').text
+				like = 'No'
+				vote = Vote.new(mainPoint, comment, postedBy, like)
+				votes.push(vote);
+			end
+			
+			op = Opinion.new(title, askedBy, yes, no, votes)
 			op.to_s
 		rescue OpenURI::HTTPError => ex
 			if ex.message == '404 Not Found'
